@@ -1,4 +1,4 @@
 resource "azurerm_resource_group" "main" {
-  name     = "devops-rg"
-  location = "UK South"
+  name     = var.resource_group_name
+  location = var.location
 }

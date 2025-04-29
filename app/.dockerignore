@@ -1,3 +1,5 @@
-.*
+.env
+.git
+.dockerignore
 build
 node_modules

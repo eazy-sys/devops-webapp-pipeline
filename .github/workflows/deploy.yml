@@ -27,7 +27,7 @@ jobs:
 
     - name: Build and push Docker image to ACR
       run: |
-        docker build -f app/Dockerfile -t devopsacrdevoppipe2132.azurecr.io/netflix:latest .
+        docker build -f app/Dockerfile -t devopsacrdevoppipe2132.azurecr.io/netflix:latest ./app
         docker push devopsacrdevoppipe2132.azurecr.io/netflix:latest
 
     - name: Set AKS context

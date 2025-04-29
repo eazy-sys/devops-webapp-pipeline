@@ -13,17 +13,13 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v3
 
-    - name: Log in to Azure with AZURE_CREDENTIALS
+    - name: Log in to Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Log in to Azure Container Registry
-      uses: azure/docker-login@v1
-      with:
-        login-server: devopsacrdevoppipe2132.azurecr.io
-        username: ${{ secrets.ACR_USERNAME }}
-        password: ${{ secrets.ACR_PASSWORD }}
+      run: az acr login --name devopsacrdevoppipe2132
 
     - name: Build and push Docker image to ACR
       run: |

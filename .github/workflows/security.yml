@@ -11,49 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: devopsacrdevoppipe2132.azurecr.io/netflix:latest
+        format: table
+        exit-code: 0
 
-     
-      - name: Docker Login to ACR
-        run: |
-          az acr login --name devopsacrdevoppipe2132
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        projectBaseDir: .
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: devopsacrdevoppipe2132.azurecr.io/netflix:latest
-          format: table
-          exit-code: 0
+    - name: Send Email Notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_APP_PASSWORD }}
+        subject: "Security Scan Completed"
+        to: omekeifebuche1@gmail.com
+        from: omekeifebuche1@gmail.com
+        body: |
+          Trivy and SonarCloud scans completed successfully.
 
-      
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-
-      
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_APP_PASSWORD }}
-          subject: "Security Scan Completed"
-          to: omekeifebuche1@gmail.com
-          from: omekeifebuche1@gmail.com
-          body: |
-            Trivy and SonarCloud scans completed successfully.
-            Check your GitHub Actions > 'Security Scans & Email Alert' for full report.
+          View Trivy results in GitHub Actions -> Security Scans & Email Alert workflow.
+          SonarCloud analysis is visible at: https://sonarcloud.io/project/overview?id=${{ secrets.SONAR_PROJECT_KEY }}

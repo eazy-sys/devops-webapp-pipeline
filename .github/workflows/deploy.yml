@@ -1,39 +1,32 @@
-name: CI/CD Netflix App to AKS
+name: Deploy to AKS
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Build and Push to ACR"]
+    types:
+      - completed
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Log in to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Log in to Azure Container Registry
-      run: az acr login --name devopsacrdevoppipe2132
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          cluster-name: devops-aks
+          resource-group: devops-rg
 
-    - name: Build and push Docker image to ACR
-      run: |
-        docker build -f Dockerfile -t devopsacrdevoppipe2132.azurecr.io/netflix:latest .
-        docker push devopsacrdevoppipe2132.azurecr.io/netflix:latest
-
-    - name: Set AKS context
-      uses: azure/aks-set-context@v3
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        cluster-name: devops-aks
-        resource-group: devops-rg
-
-    - name: Deploy to AKS
-      run: |
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml

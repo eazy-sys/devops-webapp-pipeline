@@ -1,0 +1,27 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name devopsacrdevoppipe2132
+
+      - name: Build and push Docker image
+        run: |
+          docker build -f Dockerfile -t devopsacrdevoppipe2132.azurecr.io/netflix:latest .
+          docker push devopsacrdevoppipe2132.azurecr.io/netflix:latest

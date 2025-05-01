@@ -14,6 +14,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+     
+      - name: Docker Login to ACR
+        run: |
+          az acr login --name devopsacrdevoppipe2132
+
+      
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -21,6 +33,7 @@ jobs:
           format: table
           exit-code: 0
 
+      
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
@@ -30,6 +43,7 @@ jobs:
           SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
+      
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
         with:
@@ -42,4 +56,4 @@ jobs:
           from: omekeifebuche1@gmail.com
           body: |
             Trivy and SonarCloud scans completed successfully.
-            Please review reports in GitHub Actions under the 'Security Scans & Email Alert' workflow.
+            Check your GitHub Actions > 'Security Scans & Email Alert' for full report.

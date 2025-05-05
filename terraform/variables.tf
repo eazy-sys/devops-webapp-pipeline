@@ -17,3 +17,7 @@ variable "acr_name_suffix" {
   description = "Suffix for ACR name to ensure uniqueness"
   default     = "devoppipe2132"
 }
+variable "aks_name" {
+  description = "Name of the AKS cluster"
+  default     = "devops-aks"
+}
